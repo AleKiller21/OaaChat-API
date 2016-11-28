@@ -4,12 +4,11 @@
             [compojure.route :as route]
             [ring.middleware.json :as middleware]))
 
-(require 'api.users.post)
-(refer 'api.users.post)
+(use 'api.users.post)
 
 (defroutes app-routes
   (GET "/" [] "Server listenning...")
-           (POST "/users" [] (post-user))
+           (POST "/users" request (post-user request))
   (route/not-found "Not Found"))
 
 (def app (-> (handler/site app-routes)
