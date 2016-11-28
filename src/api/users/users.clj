@@ -19,6 +19,12 @@
                               {:status 404 :body "User not found."}
                               {:status 200 :body (dissoc user :_id)})))
 
+(defn put-user [{body :body}] (let [user (find-user {:username (:username body)})]
+                            (if (nil? user)
+                              {:status 404 :body "No user found."}
+                              (update-user (:_id user) body)
+                              {:status 200 :body (merge user body)})))
+
 (defn delete-user [{body :body}] (let [email (:email body)
                                        password (:password body)
                                        user (and (not= nil email) (not= nil password) (find-user body))]

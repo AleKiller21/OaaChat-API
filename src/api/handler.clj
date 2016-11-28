@@ -10,6 +10,7 @@
   (GET "/" [] "Server listenning...")
            (POST "/users" request (post-user request))
            (GET "/users/:username" [username] (get-user username))
+           (PUT "/users"  request (put-user request))
            (DELETE "/users" request (delete-user request))
   (route/not-found "Not Found"))
 
