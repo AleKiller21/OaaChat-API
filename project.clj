@@ -6,7 +6,8 @@
                  [compojure "1.5.1"]
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-json "0.4.0"]
-                 [com.novemberain/monger "3.1.0"]]
+                 [com.novemberain/monger "3.1.0"]
+                 [clj-time "0.12.2"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler api.handler/app
          :auto-reload? true
