@@ -13,3 +13,8 @@
                                                       (val-date body)
                                                       (val-gender body))]
                                  (if (true? val-result) (new-user body) val-result)))
+
+(defn get-user [username] (let [res (find-users { :username username })]
+                            (if (empty? res)
+                              {:status 404 :body "User not found."}
+                              {:status 200 :body (dissoc (first res) :_id)})))

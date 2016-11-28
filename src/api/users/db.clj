@@ -10,7 +10,7 @@
 (def db-name "monger-test")
 (def coll "users")
 
-(defn get-user [query]
+(defn find-users [query]
   (let [conn (mg/connect)
         db (mg/get-db conn db-name)
         results (mc/find-maps db coll query)]
@@ -21,7 +21,7 @@
         new-results
         (recur remaining (conj new-results (merge res { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday res))) })))))))
 
-(defn exists? [query] (not (empty? (get-user query))))
+(defn exists? [query] (not (empty? (find-users query))))
 
 (defn create-user [data]
   (let [conn (mg/connect)
