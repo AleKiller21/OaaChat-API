@@ -21,7 +21,14 @@
         new-results
         (recur remaining (conj new-results (merge res { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday res))) })))))))
 
+(defn find-user [query] (first (find-users query)))
+
 (defn exists? [query] (not (empty? (find-users query))))
+
+(defn update-user [id new-user]
+  (let [conn (mg/connect)
+        db (mg/get-db conn db-name)]
+    (mc/update-by-id db coll id new-user)))
 
 (defn create-user [data]
   (let [conn (mg/connect)

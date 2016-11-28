@@ -10,6 +10,7 @@
   (GET "/" [] "Server listenning...")
            (POST "/users" request (post-user request))
            (GET "/users/:username" [username] (get-user username))
+           (DELETE "/users" request (delete-user request))
   (route/not-found "Not Found"))
 
 (def app (-> (handler/site app-routes)
