@@ -1,4 +1,4 @@
-(ns api.users.post)
+(ns api.users.validations)
 (use 'api.utils)
 (use 'api.users.db)
 (require '[clj-time.core :as t])
@@ -53,13 +53,3 @@
     (if (or (= gender "Male") (= gender "Female"))
       true
       {:status 400 :body "Gender MUST be binary."})))
-
-(defn new-user [body] {:status 200 :body (create-user body)})
-
-(defn post-user [{body :body}] (let [val-result (mand (val-email body)
-                                                      (val-unique-email-and-username body)
-                                                      (val-password body)
-                                                      (val-names body)
-                                                      (val-date body)
-                                                      (val-gender body))]
-                                 (if (true? val-result) (new-user body) val-result)))
