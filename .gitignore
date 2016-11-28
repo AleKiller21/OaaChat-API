@@ -1,3 +1,6 @@
 /target
 /lib
 workspace.xml
+resources/
+.idea/vcs.xml
+.idea/libraries
