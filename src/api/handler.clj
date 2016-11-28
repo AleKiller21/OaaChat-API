@@ -1,11 +1,17 @@
 (ns api.handler
   (:require [compojure.core :refer :all]
+            [compojure.handler :as handler]
             [compojure.route :as route]
-            [ring.middleware.defaults :refer [wrap-defaults site-defaults]]))
+            [ring.middleware.json :as middleware]))
+
+(require 'api.users.post)
+(refer 'api.users.post)
 
 (defroutes app-routes
-  (GET "/" [] "Hello World")
+  (GET "/" [] "Server listenning...")
+           (POST "/users" [] (post-user))
   (route/not-found "Not Found"))
 
-(def app
-  (wrap-defaults app-routes site-defaults))
+(def app (-> (handler/site app-routes)
+             (middleware/wrap-json-body {:keywords? true :bigdecimals? true})
+             (middleware/wrap-json-response)))
