@@ -4,33 +4,39 @@
 (use 'api.users.validations)
 
 ; TODO: Email to user with activation code!
-(defn new-user [body] {:status 200 :body (create-user body)})
+(defn new-user [body] (success (create-user body)))
 
 (defn post-user [{body :body}] (let [val-result (mand (val-email body)
-                                                      (val-unique-email-and-username body)
+                                                      (val-username body)
                                                       (val-password body)
                                                       (val-names body)
-                                                      (val-date body)
+                                                      (val-birthday body)
                                                       (val-gender body))]
                                  (if (true? val-result) (new-user body) val-result)))
 
 (defn get-user [username] (let [user (find-user { :username username })]
                             (if (nil? user)
-                              {:status 404 :body "User not found."}
-                              {:status 200 :body (dissoc user :_id)})))
+                              (not-found "User not found.")
+                              (success (dissoc user :_id :password)))))
 
-(defn put-user [{body :body}] (let [user (find-user {:username (:username body)})]
-                            (if (nil? user)
-                              {:status 404 :body "No user found."}
-                              (update-user (:_id user) body)
-                              {:status 200 :body (merge user body)})))
+;  TODO: Hay que validar que tenga un token para autorizar el update
+(defn put-user [{{username :username} :params body :body}] (let [user (find-user { :username username })]
+                                                             (if (nil? user)
+                                                               (not-found "User not found.")
+                                                               (let [val-result (mand (val-username body)
+                                                                                      (val-names body)
+                                                                                       (val-birthday body)
+                                                                                       (val-gender body))]
+                                                                 (if (true? val-result)
+                                                                   (success (dissoc (update-user (:_id user) (merge user body)) :_id))
+                                                                   val-result)))))
 
 (defn delete-user [{body :body}] (let [email (:email body)
                                        password (:password body)
                                        user (and (not= nil email) (not= nil password) (find-user body))]
                                    (if (or (false? user) (nil? user))
-                                     {:status 404 :body "No user found with those credentials."}
+                                     (unauthorized "You are not authorized to do that.")
                                      (do
                                        (if (true? (:active user))
                                          (update-user (:_id user) (update user :active false)))
-                                       {:status 200 :body (dissoc user :_id)}))))
+                                       (success (dissoc user :_id))))))

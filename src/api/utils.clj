@@ -12,6 +12,16 @@
       val
       (recur remaining))))
 
+(defn res [status body]
+  {:status status :body body})
+
+(defn success [body] (res 200 body))
+(defn bad-request [body] (res 400 body))
+(defn unauthorized [body] (res 401 body))
+(defn forbidden [body] (res 403 body))
+(defn not-found [body] (res 404 body))
+(defn server-err [body] (res 500 body))
+
 
 (defn age [bday]
   "Calculate your age based on the DateTime bday."

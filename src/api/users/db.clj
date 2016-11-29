@@ -28,7 +28,8 @@
 (defn update-user [id new-user]
   (let [conn (mg/connect)
         db (mg/get-db conn db-name)]
-    (mc/update-by-id db coll id new-user)))
+    (mc/update-by-id db coll id new-user)
+    (merge new-user { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday new-user))) })))
 
 (defn create-user [data]
   (let [conn (mg/connect)
