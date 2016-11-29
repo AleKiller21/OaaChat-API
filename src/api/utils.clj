@@ -30,8 +30,8 @@
         bm (t/month bday)
         by (t/year bday)
         td (t/day today)
-        tm (t/day today)
-        ty (t/day today)
+        tm (t/month today)
+        ty (t/year today)
         est (- ty by)]
     (if (or (> tm bm) (and (= tm bm) (>= td bd)))
       est
