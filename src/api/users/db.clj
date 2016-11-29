@@ -36,4 +36,4 @@
         db   (mg/get-db conn db-name)
         user (merge data { :avatar "default.png" :friends [] :active false })]
     (mc/insert db coll (merge { :_id (ObjectId.) } user))
-    user))
+    (merge user { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday user))) })))

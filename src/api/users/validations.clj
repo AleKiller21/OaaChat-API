@@ -22,6 +22,13 @@
         (bad-request "There is already an account with that username.")
         true))))
 
+(defn val-username-update [{username :username} original] (if (= username original) true (val-username {:username username})))
+
+(defn val-avatar [{avatar :avatar}]
+  (if (nil? avatar)
+    (bad-request "You must provide an avatar.")
+    true))
+
 (defn val-password [{ password :password }]
   (if (nil? password)
     (bad-request "You must provide a password.")
