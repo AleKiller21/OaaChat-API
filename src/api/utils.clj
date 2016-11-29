@@ -1,4 +1,5 @@
-(ns api.utils)
+(ns api.utils
+  (:require [postal.core :as postal]))
 (require '[clj-time.core :as t])
 
 (def email-regex #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
@@ -36,3 +37,7 @@
     (if (or (> tm bm) (and (= tm bm) (>= td bd)))
       est
       (dec est))))
+
+(defn send-email [conn message]
+  "Sends an email based on the connection map (:host :user :pass :ssl) and message (:from :to :subject :body) map received as arguments."
+  (postal/send-message conn message))

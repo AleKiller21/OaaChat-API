@@ -1,10 +1,25 @@
-(ns api.users.users)
+(ns api.users.users
+  (:require [postal.core :as postal]))
 (use 'api.utils)
 (use 'api.users.db)
 (use 'api.users.validations)
 
+(def user "oaachat@gmail.com")
+(def pass "admin2102")
+(def host "smtp.gmail.com")
+
 ; TODO: Email to user with activation code!
 (defn new-user [body] (success (create-user body)))
+
+(defn send-activation-code [{email :email}] (let [conn {:host host
+                                                        :user user
+                                                        :pass pass
+                                                        :ssl true}
+                                                  message {:from user
+                                                           :to email
+                                                           :subject "Activation code for the user you just created."
+                                                           :body "0123456789ABCDEF"}]
+                                              (println (send-email conn message))))
 
 (defn post-user [{body :body}] (let [val-result (mand (val-email body)
                                                       (val-username body)
@@ -12,7 +27,11 @@
                                                       (val-names body)
                                                       (val-birthday body)
                                                       (val-gender body))]
-                                 (if (true? val-result) (new-user body) val-result)))
+                                 (if (true? val-result)
+                                   (do
+                                     (new-user body)
+                                     (send-activation-code body))
+                                   val-result)))
 
 (defn get-user [username] (let [user (find-user { :username username })]
                             (if (nil? user)
