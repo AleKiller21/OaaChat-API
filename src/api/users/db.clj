@@ -1,6 +1,7 @@
 (ns api.users.db
   (:require [monger.core :as mg]
-            [monger.collection :as mc])
+            [monger.collection :as mc]
+            [buddy.hashers :as hashers])
   (:import [org.bson.types ObjectId]))
 
 (require '[clj-time.format :as f])
@@ -34,6 +35,6 @@
 (defn create-user [data]
   (let [conn (mg/connect)
         db   (mg/get-db conn db-name)
-        user (merge data { :avatar "default.png" :friends [] :active false })]
+        user (merge data { :avatar "default.png" :friends [] :active false :hash (hashers/derive (:email data))})]
     (mc/insert db coll (merge { :_id (ObjectId.) } user))
     (merge user { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday user))) })))

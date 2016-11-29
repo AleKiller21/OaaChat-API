@@ -8,7 +8,8 @@
                  [ring/ring-json "0.4.0"]
                  [com.novemberain/monger "3.1.0"]
                  [clj-time "0.12.2"]
-                 [com.draines/postal "2.0.2"]]
+                 [com.draines/postal "2.0.2"]
+                 [buddy/buddy-hashers "1.0.0"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler api.handler/app
          :auto-reload? true

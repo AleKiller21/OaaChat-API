@@ -28,9 +28,9 @@
                                                       (val-birthday body)
                                                       (val-gender body))]
                                  (if (true? val-result)
-                                   (do
-                                     (new-user body)
-                                     (send-activation-code body))
+                                   (do (new-user body)
+                                       ;(send-activation-code body)
+                                       )
                                    val-result)))
 
 (defn get-user [username] (let [user (find-user { :username username })]
