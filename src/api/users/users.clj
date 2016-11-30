@@ -28,7 +28,8 @@
                                                       (val-birthday body)
                                                       (val-gender body))]
                                  (if (true? val-result)
-                                   (do (let [data (merge body {:hash (hashers/derive (:email body))})]
+                                   (do (let [data (merge body {:hash (hashers/derive (:email body))
+                                                               :password (hashers/derive (:password body))})]
                                          (let [response (new-user data)]
                                            (send-activation-code data)
                                            response)))
