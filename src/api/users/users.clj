@@ -7,7 +7,6 @@
 (def user "oaachat@gmail.com")
 (def pass "admin2102")
 (def email-host "smtp.gmail.com")
-(def host "localhost:3000")
 
 ; TODO: Email to user with activation code!
 (defn new-user [body] (success (create-user body)))
@@ -63,3 +62,10 @@
                                        (when (true? (:active user))
                                          (update-user (:_id user) (assoc user :active false)))
                                        (success (dissoc (assoc user :active false) :_id :hash))))))
+
+(defn activate-user [{body :body}] (let [email (:email body)
+                                         hash (:hash body)
+                                         user (and (not= nil email) (not= nil hash) (find-user (assoc body :active false)))]
+                                     (if (nil? user)
+                                       (not-found "No entry with that email or activation code was found")
+                                       (success (dissoc (update-user (:_id user) (assoc user :active true)) :_id :password :hash)))))

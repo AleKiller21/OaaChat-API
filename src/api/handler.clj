@@ -9,6 +9,7 @@
 (defroutes app-routes
   (GET "/" [] "Server listenning...")
            (POST "/users" request (post-user request))
+           (POST "/users/activate" request (activate-user request))
            (GET "/users/:username" [username] (get-user username))
            (PUT "/users/:username"  request (put-user request))
            (DELETE "/users" request (delete-user request))
