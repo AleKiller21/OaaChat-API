@@ -13,6 +13,7 @@
            (GET "/users/:username" [username] (get-user username))
            (PUT "/users/:username"  request (put-user request))
            (DELETE "/users" request (delete-user request))
+           (POST "/login" request (login request))
   (route/not-found "Not Found"))
 
 (def app (-> (handler/site app-routes)
