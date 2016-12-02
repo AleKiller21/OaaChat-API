@@ -77,5 +77,5 @@
                              (if (or (nil? user) (false? user))
                                (not-found "No user exists with that email or password")
                                (if (= (hashers/check password (:password user)) true)
-                                 (success (dissoc user :_id :hash :password))
+                                 (success (assoc (dissoc user :_id :hash :password) :token "2f904e245c1f5"))
                                  (unauthorized {:body "Invalid credentials"})))))
