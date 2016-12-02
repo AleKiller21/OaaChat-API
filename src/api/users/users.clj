@@ -38,7 +38,7 @@
 (defn get-user [username] (let [user (find-user { :username username })]
                             (if (nil? user)
                               (not-found "User not found.")
-                              (success (dissoc user :_id :password :hash)))))
+                              (success (dissoc user :_id :password :hash :active)))))
 
 ;  TODO: Hay que validar que tenga un token para autorizar el update
 (defn put-user [{{username :username} :params body :body}] (let [user (dissoc (find-user { :username username }) :age)
@@ -77,5 +77,6 @@
                              (if (or (nil? user) (false? user))
                                (not-found "No user exists with that email or password")
                                (if (= (hashers/check password (:password user)) true)
-                                 (success (assoc (dissoc user :_id :hash :password) :token "2f904e245c1f5"))
+                                 (success (assoc (dissoc user :_id :hash :password) :token (hashers/derive (str (:username user)
+                                                                                                                (:email user)))))
                                  (unauthorized {:body "Invalid credentials"})))))

@@ -22,6 +22,7 @@
 (defn forbidden [body] (res 403 body))
 (defn not-found [body] (res 404 body))
 (defn server-err [body] (res 500 body))
+(defn authenticate? [request] (if (:identity request) true false))
 
 
 (defn age [bday]

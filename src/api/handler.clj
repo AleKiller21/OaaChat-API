@@ -11,21 +11,14 @@
      'ring.middleware.session
      'api.utils)
 
-(def tokens {:2f904e245c1f5 :admin
-             :45c1f5e3f05d0 :foouser})
-
-(defn token-validation
-  [request data callback]
-  (if (:identity request)
-    (callback data)
-    (unauthorized "Invalid Credentials!!")))
+(defn token-validation [request data callback] (if (authenticate? request)
+                                                 (callback data)
+                                                 (unauthorized "Invalid Credentials!!")))
 
 (defn auth-validation
   [request token]
   (let [token (keyword token)]
-    (get tokens token nil)))
-
-(defn validate-token [request ])
+    token))
 
 (def backend (backends/token {:authfn auth-validation}))
 
