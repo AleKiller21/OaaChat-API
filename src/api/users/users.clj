@@ -1,5 +1,6 @@
 (ns api.users.users
-  (:require [buddy.hashers :as hashers]))
+  (:require [buddy.hashers :as hashers]
+            [buddy.sign.jwt :as jwt]))
 (use 'api.utils)
 (use 'api.users.db)
 (use 'api.users.validations)
@@ -7,6 +8,7 @@
 (def user "oaachat@gmail.com")
 (def pass "admin2102")
 (def email-host "smtp.gmail.com")
+(def secret "admin123")
 
 ; TODO: Email to user with activation code!
 (defn new-user [body] (success (create-user body)))
@@ -77,6 +79,7 @@
                              (if (or (nil? user) (false? user))
                                (not-found "No user exists with that email or password")
                                (if (= (hashers/check password (:password user)) true)
-                                 (success (assoc (dissoc user :_id :hash :password) :token (hashers/derive (str (:username user)
-                                                                                                                (:email user)))))
+                                 (success (assoc (dissoc user :_id :hash :password) :token (jwt/sign {:username (:username user)} secret)))
                                  (unauthorized {:body "Invalid credentials"})))))
+
+(defn unsign [request] (success (:identity request)))

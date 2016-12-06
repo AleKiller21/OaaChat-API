@@ -20,7 +20,7 @@
   (let [token (keyword token)]
     token))
 
-(def backend (backends/token {:authfn auth-validation}))
+(def backend (backends/jws {:secret secret}))
 
 (defroutes app-routes
   (GET "/" [] "Server listenning...")
@@ -30,6 +30,7 @@
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))
            (POST "/login" request (login request))
+           (POST "/login2", request (token-validation request request unsign))
            (route/not-found "Not Found"))
 
 (def app (-> (handler/site app-routes)
