@@ -11,9 +11,11 @@
      'ring.middleware.session
      'api.utils)
 
+(require '[ring.middleware.cors :refer [wrap-cors]])
+
 (defn token-validation [request data callback] (if (authenticate? request)
                                                  (callback data)
-                                                 (unauthorized "Invalid Credentials!!")))
+                                                 (unauthorized "Invalid Credentials.")))
 
 (defn auth-validation
   [request token]
@@ -33,7 +35,8 @@
            (POST "/login2", request (token-validation request request unsign))
            (route/not-found "Not Found"))
 
-(def app (-> (handler/site app-routes)
+
+(def app (-> (wrap-cors app-routes #".*")
              (middleware/wrap-json-body {:keywords? true :bigdecimals? true})
              (middleware/wrap-json-response)
              (wrap-authentication backend)))

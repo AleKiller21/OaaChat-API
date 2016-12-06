@@ -66,20 +66,19 @@
                                          (update-user (:_id user) (assoc user :active false)))
                                        (success (dissoc (assoc user :active false) :_id :hash))))))
 
-(defn activate-user [{body :body}] (let [email (:email body)
-                                         hash (:hash body)
-                                         user (and (not= nil email) (not= nil hash) (find-user (assoc body :active false)))]
+(defn activate-user [{body :body}] (let [hash (:hash body)
+                                         user (and (not= nil hash) (find-user (assoc body :active false)))]
                                      (if (or (nil? user) (false? user))
-                                       (not-found "No entry with that email or activation code was found")
+                                       (not-found "Invalid hash.")
                                        (success (dissoc (update-user (:_id user) (assoc user :active true)) :_id :password :hash)))))
 
 (defn login [{body :body}] (let [email (:email body)
                                  password (:password body)
                                  user (and (not= nil email) (not= nil password) (find-user {:email email :active true}))]
                              (if (or (nil? user) (false? user))
-                               (not-found "No user exists with that email or password")
+                               (not-found "No active user exists with that email.")
                                (if (= (hashers/check password (:password user)) true)
                                  (success (assoc (dissoc user :_id :hash :password) :token (jwt/sign {:username (:username user)} secret)))
-                                 (unauthorized {:body "Invalid credentials"})))))
+                                 (unauthorized "Incorrect email or password.")))))
 
 (defn unsign [request] (success (:identity request)))
