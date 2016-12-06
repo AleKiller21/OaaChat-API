@@ -23,6 +23,7 @@
   (GET "/" [] "Server listenning...")
            (POST "/users" request (post-user request))
            (POST "/users/activate" request (activate-user request))
+           (POST "/users/add-friend" request (token-validation request {:identity (:identity request) :username (:body request)} add-friend))
            (GET "/users/:username" request (token-validation request (:username (:params request)) get-user))
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))

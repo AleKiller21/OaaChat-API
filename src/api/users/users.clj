@@ -80,3 +80,14 @@
                                (if (= (hashers/check password (:password user)) true)
                                  (success (assoc (dissoc user :_id :hash :password) :token (jwt/sign {:username (:username user)} secret)))
                                  (unauthorized "Incorrect email or password.")))))
+
+(defn add-friend [{identity :identity body :username}] (let [user_origin (find-user identity)
+                                                         user_destiny (find-user body)]
+                                                     (if (or (nil? user_destiny) (= (:active user_destiny) false))
+                                                       (not-found "The user you want to add doesn't exist.")
+                                                       (do
+                                                         (if (not= nil (some (partial = (:username user_destiny)) (:friends user_origin)))
+                                                           (forbidden "He is already in your list of friends.")
+                                                           (let [user (merge user_origin {:friends (conj (:friends user_origin) (:username body))})]
+                                                             (update-user (:_id user_origin) user)
+                                                             (success (dissoc user :_id))))))))
