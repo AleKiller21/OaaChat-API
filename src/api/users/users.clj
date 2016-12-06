@@ -75,8 +75,8 @@
                                  password (:password body)
                                  user (and (not= nil email) (not= nil password) (find-user {:email email :active true}))]
                              (if (or (nil? user) (false? user))
-                               (not-found "No user exists with that email or password")
+                               (not-found "No user exists with that email.")
                                (if (= (hashers/check password (:password user)) true)
                                  (success (assoc (dissoc user :_id :hash :password) :token (hashers/derive (str (:username user)
                                                                                                                 (:email user)))))
-                                 (unauthorized {:body "Invalid credentials"})))))
+                                 (unauthorized {:body "Incorrect email or password."})))))
