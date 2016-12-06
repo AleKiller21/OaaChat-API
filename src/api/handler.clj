@@ -32,7 +32,6 @@
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))
            (POST "/login" request (login request))
-           (POST "/login2", request (token-validation request request unsign))
            (route/not-found "Not Found"))
 
 
