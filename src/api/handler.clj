@@ -15,7 +15,7 @@
 
 (defn token-validation [request data callback] (if (authenticate? request)
                                                  (callback data)
-                                                 (unauthorized "Invalid Credentials!!")))
+                                                 (unauthorized "Invalid Credentials.")))
 
 (defn auth-validation
   [request token]
