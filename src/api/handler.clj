@@ -17,11 +17,6 @@
                                                  (callback data)
                                                  (unauthorized "Invalid Credentials.")))
 
-(defn auth-validation
-  [request token]
-  (let [token (keyword token)]
-    token))
-
 (def backend (backends/jws {:secret secret}))
 
 (defroutes app-routes
