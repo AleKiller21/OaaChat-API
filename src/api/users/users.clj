@@ -5,23 +5,20 @@
 (use 'api.users.db)
 (use 'api.users.validations)
 
-(def user "oaachat@gmail.com")
+(def user_mail "oaachat@gmail.com")
 (def pass "admin2102")
 (def email-host "smtp.gmail.com")
 (def secret "admin123")
+(def email-conn {:host email-host :user user_mail :pass pass :ssl true})
 
 ; TODO: Email to user with activation code!
 (defn new-user [body] (success (create-user body)))
 
-(defn send-activation-code [{email :email hash :hash}] (let [conn {:host email-host
-                                                        :user user
-                                                        :pass pass
-                                                        :ssl true}
-                                                  message {:from user
+(defn send-activation-code [{email :email hash :hash}] (let [message {:from user_mail
                                                            :to email
                                                            :subject "Activation code for the user you just created."
                                                            :body hash}]
-                                              (println (send-email conn message))))
+                                              (println (send-email email-conn message))))
 
 (defn post-user [{body :body}] (let [val-result (mand (val-email body)
                                                       (val-username body)
@@ -90,4 +87,6 @@
                                                            (forbidden "He is already in your list of friends.")
                                                            (let [user (merge user_origin {:friends (conj (:friends user_origin) (:username body))})]
                                                              (update-user (:_id user_origin) user)
+                                                             (send-email email-conn {:from user_mail :to (:email user_destiny) :subject "Friend request"
+                                                                                     :body (str (:username user_origin) " has added you to his friends.")})
                                                              (success (dissoc user :_id))))))))
