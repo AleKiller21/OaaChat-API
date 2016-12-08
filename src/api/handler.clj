@@ -24,6 +24,7 @@
            (POST "/users" request (post-user request))
            (POST "/users/activate" request (activate-user request))
            (POST "/users/add-friend" request (token-validation request {:identity (:identity request) :username (:body request)} add-friend))
+           (POST "/users/accept-request/:sender/:receiver" request (token-validation request (:params request) accept-request))
            (GET "/users/:username" request (token-validation request (:username (:params request)) get-user))
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))
