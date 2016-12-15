@@ -11,7 +11,8 @@
                  [com.draines/postal "2.0.2"]
                  [buddy/buddy-hashers "1.0.0"]
                  [buddy/buddy-auth "1.3.0"]
-                 [jumblerg/ring.middleware.cors "1.0.1"]]
+                 [jumblerg/ring.middleware.cors "1.0.1"]
+                 [metosin/ring-swagger "0.22.12"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler api.handler/app
          :auto-reload? true

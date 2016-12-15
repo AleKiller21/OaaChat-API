@@ -5,11 +5,14 @@
             [compojure.route :as route]
             [ring.middleware.json :as middleware]
             [buddy.auth.backends :as backends]
-            [ring.util.response :as response]))
+            [ring.util.response :as response]
+            [ring.swagger.swagger2 :as rs]))
 
 (use 'api.users.users
      'ring.middleware.session
      'api.utils)
+
+(rs/swagger-json {})
 
 (require '[ring.middleware.cors :refer [wrap-cors]])
 
