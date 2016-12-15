@@ -93,8 +93,10 @@
       (do
         (if (not= nil (some (partial = (:username user_destiny)) (:friends user_origin)))
           (forbidden "He is already in your list of friends.")
-          (let [user (merge user_origin {:friends (conj (:friends user_origin) (:username body))})]
-            (update-user (:_id user_origin) user)
-            (send-email email-conn {:from user_mail :to (:email user_destiny) :subject (str "You are now friends with " (:username body))
+          (let [sender (merge user_origin {:friends (conj (:friends user_origin) (:username body))})
+                receiver (merge user_destiny {:friends (conj (:friends user_destiny) (:username user_origin))})]
+            (update-user (:_id user_origin) sender)
+            (update-user (:_id user_destiny) receiver)
+            (send-email email-conn {:from user_mail :to (:email user_destiny) :subject (str "You are now friends with " (:username sender))
                                     :body (str (:username user_origin) " has added you to his friends.")})
-            (success (dissoc user :_id))))))))
+            (success (dissoc sender :_id))))))))
