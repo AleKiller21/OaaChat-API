@@ -82,7 +82,7 @@
     (if (or (nil? user) (false? user))
       (not-found "No active user exists with that email.")
       (if (= (hashers/check password (:password user)) true)
-        (success (assoc (dissoc user :_id :hash :password) :token (jwt/sign {:username (:username user)} secret)))
+        (success {:hash (jwt/sign {:username (:username user)} secret)})
         (unauthorized "Incorrect email or password.")))))
 
 (defn add-friend [{identity :identity body :username}]
