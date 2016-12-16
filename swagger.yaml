@@ -35,6 +35,21 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+    get:
+      summary: Gets all active users.
+      tags:
+        - Users
+      responses:
+        200:
+          description: An array of all the active users.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User-activate-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
     delete:
       summary: Deletes user.
       parameters:
@@ -77,6 +92,26 @@ paths:
   /users/add-friend:
     post:
       summary: Adds specified user to the current user's friend list.
+      parameters:
+        - name: username
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Friend'
+      tags:
+        - Users
+      responses:
+        200:
+          description: A JSON of the user who did the action.
+          schema:
+              $ref: '#/definitions/User-activate-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /users/remove-friend:
+    post:
+      summary: Removes the specified user from the current user's friend list.
       parameters:
         - name: username
           in: body
@@ -232,9 +267,6 @@ definitions:
         items:
           type: string
         description: Username of friends.
-      active:
-        type: boolean
-        description: Wether the user is active or not.
   User-post:
     type: object
     properties:
