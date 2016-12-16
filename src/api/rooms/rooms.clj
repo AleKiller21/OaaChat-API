@@ -12,4 +12,8 @@
       (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))})))
       data)))
 
-
+(defn get-room [title]
+  (let [room (find-room {:title title})]
+    (if (nil? room)
+      (not-found {:message "Room not found."})
+      (success (dissoc room :_id)))))

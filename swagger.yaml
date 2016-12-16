@@ -209,7 +209,28 @@ paths:
         - Rooms
       responses:
         200:
-          description: Token used for authentication.
+          description: Information of the room created.
+          schema:
+            $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /rooms/{title}:
+    get:
+      summary: Gets the room of the specified title.
+      parameters:
+        - name: title
+          in: path
+          description: Name of the room to look for.
+          required: true
+          type: string
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: Room found.
           schema:
             $ref: '#/definitions/Room-post-response'
         default:
@@ -366,7 +387,9 @@ definitions:
         type: string
         description: Profile picture of the room.
       messages:
-        type: string
+        type: array
+        items:
+          type: string
         description: History of all the messages sent in the room.
   Room-post:
     type: object

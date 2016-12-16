@@ -33,6 +33,7 @@
            (DELETE "/users" request (token-validation request request delete-user))
 
            (POST "/rooms" request (token-validation request request post-room))
+           (GET "/rooms/:title" request (token-validation request (:title (:params request)) get-room))
            (route/not-found "Not Found"))
 
 
