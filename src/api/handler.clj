@@ -26,6 +26,7 @@
            (POST "/users/add-friend" request (token-validation request {:identity (:identity request) :username (:body request)} add-friend))
            (POST "/users/remove-friend" request (token-validation request {:identity (:identity request) :username (:body request)} remove-friend))
            (GET "/users/:username" request (token-validation request (:username (:params request)) get-user))
+           (GET "/users" request (token-validation request nil get-users))
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))
            (POST "/login" request (login request))
