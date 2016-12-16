@@ -14,7 +14,7 @@
 
 (defn get-rooms [req]
   (let [rooms (find-rooms)]
-    (get-format rooms :_id)))
+    (get-dissoc rooms :_id)))
 
 (defn get-room [title]
   (let [room (find-room {:title title})]

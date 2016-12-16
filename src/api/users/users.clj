@@ -38,7 +38,7 @@
 
 (defn get-users [req]
   (let [users (find-users {:active true})]
-    (get-format users :_id :password :hash :active)))
+    (get-dissoc users :_id :password :hash :active)))
 
 (defn get-user [username]
   (let [user (find-user { :username username })]

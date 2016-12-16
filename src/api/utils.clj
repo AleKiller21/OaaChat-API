@@ -43,7 +43,8 @@
   "Sends an email based on the connection map (:host :user :pass :ssl) and message (:from :to :subject :body) map received as arguments."
   (postal/send-message conn message))
 
-(defn get-format [source & keys]
+(defn get-dissoc [source & keys]
+  "Receives a collection and disassociates the selected keys from all its elements."
   (loop [[head & tail] source result []]
     (if (nil? head)
       (success result)
