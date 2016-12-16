@@ -100,3 +100,17 @@
             (send-email email-conn {:from user_mail :to (:email user_destiny) :subject (str "You are now friends with " (:username sender))
                                     :body (str (:username user_origin) " has added you to his friends.")})
             (success (dissoc sender :_id))))))))
+
+(defn remove-friend [{identity :identity body :username}]
+  (let [user_origin (find-user identity)
+        user_destiny (find-user body)]
+    (if (or (nil? user_destiny) (= (:active user_destiny) false))
+      (not-found {:message "The user you want to remove doesn't exist."})
+      (do
+        (if (nil? (some (partial = (:username user_destiny)) (:friends user_origin)))
+          (forbidden {:message (str (:username user_destiny) " is not in your friends list.")})
+          (let [sender (merge user_origin {:friends (remove #{(:username body)} (:friends user_origin))})
+                receiver (merge user_destiny {:friends (remove #{(:username user_origin)} (:friends user_destiny))})]
+            (update-user (:_id user_origin) sender)
+            (update-user (:_id user_destiny) receiver)
+            (success (dissoc sender :_id))))))))
