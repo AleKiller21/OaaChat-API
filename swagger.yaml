@@ -196,6 +196,27 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /rooms:
+    post:
+      summary: Creates a new char room.
+      parameters:
+        - name: room
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Room-post'
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: Token used for authentication.
+          schema:
+            $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
 definitions:
   User-post-response:
     type: object
@@ -321,6 +342,49 @@ definitions:
       password:
         type: string
         description: password of user.
+  Room-post-response:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Name of new room.
+      description:
+        type: string
+        description: Description visible to the members.
+      members:
+        type: array
+        items:
+          type: string
+        description: Members of the new group.
+      visibility:
+        type: string
+        description: It can only be public or private.
+      admin:
+        type: string
+        description: Admin of the room.
+      avatar:
+        type: string
+        description: Profile picture of the room.
+      messages:
+        type: string
+        description: History of all the messages sent in the room.
+  Room-post:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Name of new room.
+      description:
+        type: string
+        description: Description visible to the members.
+      members:
+        type: array
+        items:
+          type: string
+        description: Members of the new group.
+      visibility:
+        type: string
+        description: It can only be public or private.
   Friend:
     type: object
     properties:

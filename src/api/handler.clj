@@ -8,6 +8,7 @@
             [ring.util.response :as response]))
 
 (use 'api.users.users
+     'api.rooms.rooms
      'ring.middleware.session
      'api.utils)
 
@@ -21,6 +22,7 @@
 
 (defroutes app-routes
   (GET "/" [] "Server listenning...")
+           (POST "/login" request (login request))
            (POST "/users" request (post-user request))
            (POST "/users/activate" request (activate-user request))
            (POST "/users/add-friend" request (token-validation request {:identity (:identity request) :username (:body request)} add-friend))
@@ -29,7 +31,8 @@
            (GET "/users" request (token-validation request nil get-users))
            (PUT "/users/:username"  request (token-validation request request put-user))
            (DELETE "/users" request (token-validation request request delete-user))
-           (POST "/login" request (login request))
+
+           (POST "/rooms" request (token-validation request request post-room))
            (route/not-found "Not Found"))
 
 
