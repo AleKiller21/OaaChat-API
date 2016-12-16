@@ -12,6 +12,10 @@
       (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))})))
       data)))
 
+(defn get-rooms [req]
+  (let [rooms (find-rooms)]
+    (get-format rooms :_id)))
+
 (defn get-room [title]
   (let [room (find-room {:title title})]
     (if (nil? room)

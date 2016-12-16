@@ -38,10 +38,7 @@
 
 (defn get-users [req]
   (let [users (find-users {:active true})]
-    (loop [[head & tail] users result []]
-      (if (nil? head)
-        (success result)
-        (recur tail (conj result (dissoc head :_id :password :hash :active)))))))
+    (get-format users :_id :password :hash :active)))
 
 (defn get-user [username]
   (let [user (find-user { :username username })]

@@ -17,11 +17,23 @@
     (mc/insert db coll (merge { :_id (ObjectId.) } room))
     room))
 
-(defn find-rooms [query]
-  (let [conn (mg/connect)
-        db (mg/get-db conn db-name)
-        results (mc/find-maps db coll query)]
-    results))
+;(defn find-rooms [query]
+;  (let [conn (mg/connect)
+;        db (mg/get-db conn db-name)
+;        results (mc/find-maps db coll query)]
+;    results))
+
+(defn find-rooms
+  ([query]
+   (let [conn (mg/connect)
+         db (mg/get-db conn db-name)
+         results (mc/find-maps db coll query)]
+     results))
+  ([]
+   (let [conn (mg/connect)
+         db (mg/get-db conn db-name)
+         results (mc/find-maps db coll)]
+     results)))
 
 (defn find-room [query] (first (find-rooms query)))
 

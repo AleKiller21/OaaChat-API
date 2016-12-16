@@ -198,7 +198,7 @@ paths:
 
   /rooms:
     post:
-      summary: Creates a new char room.
+      summary: Creates a new chat room.
       parameters:
         - name: room
           in: body
@@ -212,6 +212,21 @@ paths:
           description: Information of the room created.
           schema:
             $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      summary: Gets all the existing rooms.
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: An array of all the existing rooms.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Room-post-response'
         default:
           description: Unexpected error
           schema:
