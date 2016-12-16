@@ -39,7 +39,7 @@
 (defn get-user [username]
   (let [user (find-user { :username username })]
     (if (nil? user)
-      (not-found "User not found.")
+      (not-found {:message "User not found."})
       (success (dissoc user :_id :password :hash :active)))))
 
 ;  TODO: Hay que validar que tenga un token para autorizar el update
@@ -47,7 +47,7 @@
   (let [user (dissoc (find-user { :username username }) :age)
         new-vals (select-keys body [:username :firstname :lastname :birthday :gender :avatar])]
     (if (nil? user)
-      (not-found "User not found.")
+      (not-found {:message "User not found."})
       (let [val-result (mand (val-username-update new-vals (:username user))
                              (val-names new-vals)
                              (val-birthday new-vals)
@@ -62,7 +62,7 @@
         password (:password body)
         user (and (not= nil email) (not= nil password) (find-user body))]
     (if (or (false? user) (nil? user))
-      (unauthorized "You are not authorized to do that.")
+      (unauthorized {:message "You are not authorized to do that."})
       (do
         (when (true? (:active user))
           (update-user (:_id user) (assoc user :active false)))
@@ -72,7 +72,7 @@
   (let [hash (:hash body)
         user (and (not= nil hash) (find-user (assoc body :active false)))]
     (if (or (nil? user) (false? user))
-      (not-found "Invalid hash.")
+      (not-found {:message "Invalid hash."})
       (success (dissoc (update-user (:_id user) (assoc user :active true)) :_id :password :hash)))))
 
 (defn login [{body :body}]
@@ -80,19 +80,19 @@
         password (:password body)
         user (and (not= nil email) (not= nil password) (find-user {:email email :active true}))]
     (if (or (nil? user) (false? user))
-      (not-found "No active user exists with that email.")
+      (not-found {:message "No active user exists with that email."})
       (if (= (hashers/check password (:password user)) true)
         (success {:hash (jwt/sign {:username (:username user)} secret)})
-        (unauthorized "Incorrect email or password.")))))
+        (unauthorized {:message "Incorrect email or password."})))))
 
 (defn add-friend [{identity :identity body :username}]
   (let [user_origin (find-user identity)
         user_destiny (find-user body)]
     (if (or (nil? user_destiny) (= (:active user_destiny) false))
-      (not-found "The user you want to add doesn't exist.")
+      (not-found {:message "The user you want to add doesn't exist."})
       (do
         (if (not= nil (some (partial = (:username user_destiny)) (:friends user_origin)))
-          (forbidden "He is already in your list of friends.")
+          (forbidden {:message "He is already in your list of friends."})
           (let [sender (merge user_origin {:friends (conj (:friends user_origin) (:username body))})
                 receiver (merge user_destiny {:friends (conj (:friends user_destiny) (:username user_origin))})]
             (update-user (:_id user_origin) sender)
