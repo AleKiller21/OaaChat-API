@@ -34,7 +34,7 @@
 (defn create-user [data]
   (let [conn (mg/connect)
         db   (mg/get-db conn db-name)
-        user (merge data { :avatar "http://localhost:3000/default-avatar.jpeg" :friends [] :rooms [] :active false})]
+        user (merge data { :avatar "http://localhost:8000/default-avatar.png" :friends [] :rooms [] :active false})]
     (mc/insert db coll (merge { :_id (ObjectId.) } user))
     (merge user { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday user))) })))
 

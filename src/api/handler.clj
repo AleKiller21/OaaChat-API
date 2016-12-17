@@ -41,6 +41,7 @@
                                                                          :title (:title (:body request))} rooms/remove-users))
            (GET "/rooms" request (token-validation request request rooms/get-rooms))
            (GET "/rooms/:title" request (token-validation request (:title (:params request)) rooms/get-room))
+	   (route/resources "/")
            (route/not-found "Not Found"))
 
 
