@@ -37,3 +37,9 @@
         user (merge data { :avatar "http://localhost:3000/default-avatar.jpeg" :friends [] :rooms [] :active false})]
     (mc/insert db coll (merge { :_id (ObjectId.) } user))
     (merge user { :age (age (f/parse (f/formatter "yyyy-MM-dd") (:birthday user))) })))
+
+(defn update-users-room [room-title members]
+  (doseq [username members]
+    (let [user (find-user {:username username})]
+      (println user)
+      (update-user (:_id user) (merge user {:rooms (conj (:rooms user) room-title)})))))

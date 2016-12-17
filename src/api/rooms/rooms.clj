@@ -1,4 +1,5 @@
-(ns api.rooms.rooms)
+(ns api.rooms.rooms
+  (:require [api.users.db :as users]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
@@ -9,7 +10,9 @@
                    (val-room-members body)
                    (val-room-visibility body))]
     (if (true? data)
-      (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))})))
+      (do
+        (users/update-users-room (:title body) (conj (:members body) (:username identity)))
+        (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))}))))
       data)))
 
 (defn add-users [{identity :identity members :members title :title}]
@@ -26,6 +29,7 @@
               (bad-request valid-members)
               (let [new-room (merge room {:members (apply conj (:members room) members)})]
                 (update-room (:_id room) new-room)
+                (users/update-users-room title members)
                 (success (dissoc new-room :_id))))))))))
 
 (defn get-rooms [req]
