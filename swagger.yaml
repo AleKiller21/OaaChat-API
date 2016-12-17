@@ -175,6 +175,37 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /users/rooms:
+    get:
+      summary: Returns user's chat rooms.
+      description: Gets all the rooms where the user is currently involved.
+      tags:
+        - Users
+      responses:
+        200:
+          description: An array of rooms.
+          schema:
+            $ref: '#/definitions/User-room-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /me:
+    get:
+      summary: Returns information of the user login.
+      tags:
+        - Users
+      responses:
+        200:
+          description: A JSON of the login user.
+          schema:
+            $ref: '#/definitions/User-activate-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
   /login:
     post:
       summary: Returns token authentication.
@@ -310,6 +341,11 @@ definitions:
         items:
           type: string
         description: Username of friends.
+      rooms:
+        type: array
+        items:
+          type: string
+        description: Chat rooms.
       active:
         type: boolean
         description: Wether the user is active or not.
@@ -345,6 +381,19 @@ definitions:
         items:
           type: string
         description: Username of friends.
+      rooms:
+        type: array
+        items:
+          type: string
+        description: Title of each chat room where the user is involved.
+  User-room-response:
+    type: object
+    properties:
+      rooms:
+        type: array
+        items:
+          type: string
+        description: Title of each chat room where the user is involved.
   User-post:
     type: object
     properties:
