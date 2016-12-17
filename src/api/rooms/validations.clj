@@ -6,21 +6,21 @@
 (defn users-exist? [members]
   (loop [[head & tail] members val true]
     (if (nil? (find-user {:username head :active true}))
-      {:message (str head " doesn't exist.")}
+      (bad-request {:message (str head " doesn't exist.")})
       (if (nil? tail)
         val
         (recur tail true)))))
 
 (defn member-exists? [room members]
   (loop [[head & tail] members val true]
-    (if (not= nil (some (partial = head) (:members room)))
-      {:message (str head " is already in the room.")}
+    (if (nil? (some (partial = head) (:members room)))
+      (bad-request {:message (str head " is not in the room.")})
       (if (nil? tail)
         val
         (recur tail true)))))
 
 (defn admin? [username room]
-  (if (= username (:admin room)) true false))
+  (if (= username (:admin room)) true (forbidden {:message "You are not the admin of the group."})))
 
 (defn val-room-title [{ title :title }]
   (if (empty? title)
@@ -45,4 +45,9 @@
 (defn val-room-visibility [{ visibility :visibility }]
   (if (or (empty? visibility) (and (not= visibility "public") (not= visibility "private")))
     (bad-request {:message "The room must be either public or private."})
+    true))
+
+(defn room-exist? [room]
+  (if (nil? room)
+    (not-found {:message "room doesn't exist."})
     true))

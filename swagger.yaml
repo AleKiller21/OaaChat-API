@@ -304,6 +304,27 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+            
+  /rooms/remove-users:
+    post:
+      summary: Removes the selected members from the room.
+      parameters:
+        - name: room
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Room-remove-users'
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: Information of the room.
+          schema:
+            $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
 definitions:
   User-post-response:
@@ -504,6 +525,19 @@ definitions:
         items:
           type: string
         description: Usernames of the users being added to the room.
+        
+  Room-remove-users:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Name of the room.
+      members:
+        type: array
+        items:
+          type: string
+        description: Usernames of the users being removed from the room.
+        
   Friend:
     type: object
     properties:

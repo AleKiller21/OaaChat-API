@@ -11,26 +11,44 @@
                    (val-room-visibility body))]
     (if (true? data)
       (do
-        (users/update-users-room (:title body) (conj (:members body) (:username identity)))
+        (users/add-users-room (:title body) (conj (:members body) (:username identity)))
         (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))}))))
       data)))
 
 (defn add-users [{identity :identity members :members title :title}]
   (let [room (find-room {:title title})
-        valid (users-exist? members)]
-    (if (nil? room)
-      (not-found {:message (str title " room doesn't exist.")})
-      (if (map? valid)
-        (bad-request valid)
-        (if (not (admin? (:username identity) room))
-          (forbidden {:message "Only the admin can add new members to this group."})
-          (let [valid-members (member-exists? room members)]
-            (if (map? valid-members)
-              (bad-request valid-members)
+        valid (mand (room-exist? room)
+                    (admin? (:username identity) room)
+                    (users-exist? members))]
+    (if (map? valid)
+      valid
+      (do
+        (loop [[head & tail] members]
+          (if (true? (member-exists? room [head]))
+            (bad-request {:message (str head " is already in the room.")})
+            (if (not= nil tail)
+              (recur tail)
               (let [new-room (merge room {:members (apply conj (:members room) members)})]
                 (update-room (:_id room) new-room)
-                (users/update-users-room title members)
+                (users/add-users-room title members)
                 (success (dissoc new-room :_id))))))))))
+
+(defn remove-users [{identity :identity members :members title :title}]
+  (let [room (find-room {:title title})
+        valid (mand (room-exist? room)
+                    (admin? (:username identity) room)
+                    (users-exist? members)
+                    (member-exists? room members))]
+    (if (map? valid)
+      valid
+      (loop [[head & tail] members room room]
+        (if (not= nil head)
+          (recur tail (merge room {:members (remove #{head} (:members room))}))
+          (do
+            (update-room (:_id room) room)
+            (users/remove-users-room title members)
+            (success (dissoc room :_id))))))))
+
 
 (defn get-rooms [req]
   (let [rooms (find-rooms)]
