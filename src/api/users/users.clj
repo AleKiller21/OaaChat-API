@@ -127,4 +127,6 @@
 
 (defn me [username]
   (let [user (find-user {:username username})]
-    (success (dissoc user :_id :hash :password :active))))
+    (if (nil? user)
+      (not-found {:message "You have not initiate session."})
+      (success (dissoc user :_id :hash :password :active)))))
