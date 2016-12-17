@@ -35,6 +35,8 @@
            (POST "/rooms" request (token-validation request request post-room))
            (GET "/rooms/:title" request (token-validation request (:title (:params request)) get-room))
            (GET "/rooms" request (token-validation request request get-rooms))
+           (POST "/rooms/add-users" request (token-validation request {:identity (:identity request) :members (:members (:body request))
+                                                                      :title (:title (:body request))} add-users))
            (route/not-found "Not Found"))
 
 

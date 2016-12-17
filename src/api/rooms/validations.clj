@@ -2,15 +2,25 @@
   (:require [api.rooms.db :as rooms]))
 (use 'api.utils)
 (use 'api.users.db)
-;;(use 'api.rooms.db)
 
-(defn members-exist? [members]
+(defn users-exist? [members]
   (loop [[head & tail] members val true]
     (if (nil? (find-user {:username head :active true}))
       {:message (str head " doesn't exist.")}
       (if (nil? tail)
         val
         (recur tail true)))))
+
+(defn member-exists? [room members]
+  (loop [[head & tail] members val true]
+    (if (not= nil (some (partial = head) (:members room)))
+      {:message (str head " is already in the room.")}
+      (if (nil? tail)
+        val
+        (recur tail true)))))
+
+(defn admin? [username room]
+  (if (= username (:admin room)) true false))
 
 (defn val-room-title [{ title :title }]
   (if (empty? title)
@@ -27,7 +37,7 @@
 (defn val-room-members [{ members :members }]
   (if (empty? members)
     (bad-request {:message "The room must have at least one member."})
-    (let [valid-member (members-exist? members)]
+    (let [valid-member (users-exist? members)]
       (if (map? valid-member)
         (bad-request valid-member)
         true))))

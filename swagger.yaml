@@ -253,6 +253,27 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+  /rooms/add-users:
+    post:
+      summary: Adds an array of users to the room.
+      parameters:
+        - name: room
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Room-add-users'
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: Information of the room.
+          schema:
+            $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
 definitions:
   User-post-response:
     type: object
@@ -419,10 +440,21 @@ definitions:
         type: array
         items:
           type: string
-        description: Members of the new group.
+        description: Members of the new room.
       visibility:
         type: string
         description: It can only be public or private.
+  Room-add-users:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Name of the room.
+      members:
+        type: array
+        items:
+          type: string
+        description: Usernames of the users being added to the room.
   Friend:
     type: object
     properties:
