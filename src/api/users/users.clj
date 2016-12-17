@@ -118,3 +118,9 @@
             (update-user (:_id user_origin) sender)
             (update-user (:_id user_destiny) receiver)
             (success (dissoc sender :_id))))))))
+
+(defn get-rooms [username]
+  (let [user (find-user {:username username})]
+    (if (nil? user)
+      (not-found {:message (str username "  not found.")})
+      (success {:rooms (:rooms user)}))))
