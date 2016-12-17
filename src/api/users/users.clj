@@ -124,3 +124,7 @@
     (if (nil? user)
       (not-found {:message (str username "  not found.")})
       (success {:rooms (:rooms user)}))))
+
+(defn me [username]
+  (let [user (find-user {:username username})]
+    (success (dissoc user :_id :hash :password :active))))

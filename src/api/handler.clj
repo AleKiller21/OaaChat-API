@@ -35,6 +35,7 @@
            (GET "/users" request (token-validation request nil users/get-users))
            (GET "/users/rooms" request (token-validation request (:username (:identity request)) users/get-rooms))
            (GET "/users/:username" request (token-validation request (:username (:params request)) users/get-user))
+           (GET "/me" request (token-validation request (:username (:identity request)) users/me))
            (DELETE "/users" request (token-validation request request users/delete-user))
 
            (POST "/rooms" request (token-validation request request rooms/post-room))
