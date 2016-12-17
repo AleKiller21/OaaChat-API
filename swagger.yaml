@@ -190,6 +190,22 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+            
+  /users/friends:
+    get:
+      summary: Returns user's friends.
+      description: Gets all the friends of the user logged in.
+      tags:
+        - Users
+      responses:
+        200:
+          description: An array of friends.
+          schema:
+            $ref: '#/definitions/User-friends-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
   /me:
     get:
@@ -415,6 +431,16 @@ definitions:
         items:
           type: string
         description: Title of each chat room where the user is involved.
+        
+  User-friends-response:
+    type: object
+    properties:
+      friends:
+        type: array
+        items:
+          type: string
+        description: Username of each of the friends.
+        
   User-post:
     type: object
     properties:

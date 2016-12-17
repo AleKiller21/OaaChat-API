@@ -131,3 +131,9 @@
     (if (nil? user)
       (not-found {:message "You have not initiate session."})
       (success (dissoc user :_id :hash :password :active)))))
+
+(defn get-friends [username]
+  (let [user (find-user {:username username})]
+    (if (nil? user)
+      (bad-request {:username "No user with that username exists."})
+      (success {:friends (:friends user)}))))
