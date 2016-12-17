@@ -36,9 +36,10 @@
               response)))
       val-result)))
 
-(defn get-users [req]
-  (let [users (find-users {:active true})]
-    (get-dissoc users :_id :password :hash :active)))
+(defn get-users [username-login]
+  (let [users (find-users {:active true})
+        user-logged (find-user {:username username-login})]
+    (get-dissoc (remove #{user-logged} users) :_id :password :hash :active)))
 
 (defn get-user [username]
   (let [user (find-user { :username username })]

@@ -16,7 +16,7 @@
 
 (defn token-validation [request data callback] (if (authenticate? request)
                                                  (callback data)
-                                                 (unauthorized "Invalid Credentials.")))
+                                                 (unauthorized {:message "Invalid Credentials."})))
 
 (def backend (backends/jws {:secret users/secret}))
 
@@ -27,7 +27,7 @@
            (POST "/users/activate" request (users/activate-user request))
            (POST "/users/add-friend" request (token-validation request {:identity (:identity request) :username (:body request)} users/add-friend))
            (POST "/users/remove-friend" request (token-validation request {:identity (:identity request) :username (:body request)} users/remove-friend))
-           (GET "/users" request (token-validation request nil users/get-users))
+           (GET "/users" request (token-validation request (:username (:identity request)) users/get-users))
            (GET "/users/rooms" request (token-validation request (:username (:identity request)) users/get-rooms))
            (GET "/users/:username" request (token-validation request (:username (:params request)) users/get-user))
            (GET "/me" request (token-validation request (:username (:identity request)) users/me))
