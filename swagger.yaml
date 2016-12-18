@@ -539,9 +539,6 @@ definitions:
       title:
         type: string
         description: Name of new room.
-      description:
-        type: string
-        description: Description visible to the members.
       members:
         type: array
         items:
@@ -567,9 +564,9 @@ definitions:
       title:
         type: string
         description: Name of new room.
-      description:
+      avatar:
         type: string
-        description: Description visible to the members.
+        description: Profile picture of the room.
       members:
         type: array
         items:
