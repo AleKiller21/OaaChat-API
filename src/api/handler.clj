@@ -29,7 +29,7 @@
            (POST "/users/remove-friend" request (token-validation request {:identity (:identity request) :username (:body request)} users/remove-friend))
            (GET "/users" request (token-validation request (:username (:identity request)) users/get-users))
            (GET "/users/rooms" request (token-validation request (:username (:identity request)) users/get-rooms))
-           (GET "/users/friends", request (token-validation request (:username (:identity request)) users/get-friends))
+           (GET "/users/friends", request (token-validation request (:username (:identity request)) users/get-friends-usernames))
            (GET "/users/:username" request (token-validation request (:username (:params request)) users/get-user))
            (GET "/me" request (token-validation request (:username (:identity request)) users/me))
            (PUT "/users/:username"  request (token-validation request request users/put-user))

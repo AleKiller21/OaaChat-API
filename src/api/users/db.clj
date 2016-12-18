@@ -47,3 +47,10 @@
   (doseq [username members]
     (let [user (find-user {:username username})]
       (update-user (:_id user) (merge user {:rooms (remove #{room-title} (:rooms user))})))))
+
+(defn get-friends-models [user]
+  (loop [[head & tail] (:friends user) friends-model []]
+    (if (nil? head)
+      friends-model
+      (let [friend (find-user {:username head})]
+        (recur tail (conj friends-model (dissoc friend :_id :hash :password :active)))))))

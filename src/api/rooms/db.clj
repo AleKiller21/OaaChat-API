@@ -1,6 +1,7 @@
 (ns api.rooms.db
   (:require [monger.core :as mg]
-            [monger.collection :as mc])
+            [monger.collection :as mc]
+            [monger.operators :refer :all])
   (:import [org.bson.types ObjectId]))
 
 (require '[clj-time.format :as f])

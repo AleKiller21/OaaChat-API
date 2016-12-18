@@ -216,7 +216,7 @@ paths:
         200:
           description: A JSON of the login user.
           schema:
-            $ref: '#/definitions/User-activate-response'
+            $ref: '#/definitions/User-me-response'
         default:
           description: Unexpected error
           schema:
@@ -423,6 +423,44 @@ definitions:
         items:
           type: string
         description: Title of each chat room where the user is involved.
+  User-me-response:
+    type: object
+    properties:
+      email:
+        type: string
+        description: Email of user.
+      username:
+        type: string
+        description: Username of user.
+      firstname:
+        type: string
+        description: Firstname of user.
+      lastname:
+        type: string
+        description: Lastname of user.
+      birthday:
+        type: string
+        description: Birthday of user, example = "1995-10-01".
+      age:
+        type: integer
+        description: Age of user.
+      gender:
+        type: string
+        description: Gender of user.
+      avatar:
+        type: string
+        description: Profile picture of user.
+      friends:
+        type: array
+        items:
+          $ref: '#/definitions/User-activate-response'
+        description: Model of friends.
+      rooms:
+        type: array
+        items:
+          $ref: '#/definitions/Room-post-response'
+        description: Model of each room.
+        
   User-room-response:
     type: object
     properties:

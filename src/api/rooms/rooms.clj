@@ -1,5 +1,6 @@
 (ns api.rooms.rooms
-  (:require [api.users.db :as users]))
+  (:require [api.users.db :as users]
+            [monger.operators :as ops]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
@@ -50,12 +51,19 @@
             (success (dissoc room :_id))))))))
 
 
-(defn get-rooms [req]
-  (let [rooms (find-rooms)]
-    (get-dissoc rooms :_id)))
+(defn get-rooms
+  ([req query]
+   (let [rooms (find-rooms query)]
+     (get-dissoc rooms :_id)))
+  ([req]
+   (let [rooms (find-rooms)]
+     (success (get-dissoc rooms :_id)))))
 
 (defn get-room [title]
   (let [room (find-room {:title title})]
     (if (nil? room)
       (not-found {:message "Room not found."})
       (success (dissoc room :_id)))))
+
+;(defn put-room [{title :title body :body}]
+;  )

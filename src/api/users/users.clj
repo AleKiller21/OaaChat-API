@@ -1,6 +1,8 @@
 (ns api.users.users
   (:require [buddy.hashers :as hashers]
-            [buddy.sign.jwt :as jwt]))
+            [buddy.sign.jwt :as jwt]
+            [monger.operators :as ops]
+            [api.rooms.rooms :as rooms]))
 (use 'api.utils)
 (use 'api.users.db)
 (use 'api.users.validations)
@@ -39,7 +41,7 @@
 (defn get-users [username-login]
   (let [users (find-users {:active true})
         user-logged (find-user {:username username-login})]
-    (get-dissoc (remove #{user-logged} users) :_id :password :hash :active)))
+    (success (get-dissoc (remove #{user-logged} users) :_id :password :hash :active))))
 
 (defn get-user [username]
   (let [user (find-user { :username username })]
@@ -104,7 +106,7 @@
             (update-user (:_id user_destiny) receiver)
             (send-email email-conn {:from user_mail :to (:email user_destiny) :subject (str "You are now friends with " (:username sender))
                                     :body (str (:username user_origin) " has added you to his friends.")})
-            (success (dissoc sender :_id))))))))
+            (success (dissoc sender :_id :hash :password :active))))))))
 
 (defn remove-friend [{identity :identity body :username}]
   (let [user_origin (find-user identity)
@@ -130,9 +132,12 @@
   (let [user (find-user {:username username})]
     (if (nil? user)
       (not-found {:message "You have not initiate session."})
-      (success (dissoc user :_id :hash :password :active)))))
+      (do
+        (let [rooms (rooms/get-rooms username {:members {ops/$in [username]}})
+              friends (get-friends-models user)]
+          (success (dissoc (merge user {:rooms rooms} {:friends friends}) :_id :hash :password :active)))))))
 
-(defn get-friends [username]
+(defn get-friends-usernames [username]
   (let [user (find-user {:username username})]
     (if (nil? user)
       (bad-request {:username "No user with that username exists."})

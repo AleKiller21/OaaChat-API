@@ -47,5 +47,6 @@
   "Receives a collection and disassociates the selected keys from all its elements."
   (loop [[head & tail] source result []]
     (if (nil? head)
-      (success result)
+      ;;(success result)
+      result
       (recur tail (conj result (apply dissoc head keys))))))
