@@ -7,7 +7,9 @@
             [buddy.auth.backends :as backends]
             [ring.util.response :as response]
             [api.users.users :as users]
-            [api.rooms.rooms :as rooms]))
+            [api.rooms.rooms :as rooms]
+            [org.httpkit.server :refer :all]
+            [ring.middleware.reload :as reload]))
 
 (use 'ring.middleware.session
      'api.utils)
@@ -18,10 +20,22 @@
                                                  (callback data)
                                                  (unauthorized {:message "Invalid Credentials."})))
 
+(defn ws-handler [req]
+  (println req)
+  (with-channel req channel
+                (on-close channel (fn [status] (println "channel closed: " status)))
+                (if (websocket? channel)
+                  (println "WebSocket channel")
+                  (println "HTTP channel"))
+                (println channel)
+                (on-receive channel (fn [data]
+                                      (send! channel data)))))
+
 (def backend (backends/jws {:secret users/secret}))
 
 (defroutes app-routes
   (GET "/" [] "Server listenning...")
+           (GET "/ws" request (ws-handler request))
            (POST "/login" request (users/login request))
            (POST "/users" request (users/post-user request))
            (POST "/users/activate" request (users/activate-user request))
@@ -49,4 +63,7 @@
 (def app (-> (wrap-cors app-routes #".*")
              (middleware/wrap-json-body {:keywords? true :bigdecimals? true})
              (middleware/wrap-json-response)
-             (wrap-authentication backend)))
+             (wrap-authentication backend)
+             (reload/wrap-reload (handler/site #'app-routes))))
+
+(defn -main [& args] (run-server app {:port 3000}) (println "server running"))

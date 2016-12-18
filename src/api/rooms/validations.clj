@@ -19,20 +19,12 @@
         val
         (recur tail true)))))
 
-(defn admin? [username room]
-  (if (= username (:admin room)) true (forbidden {:message "You are not the admin of the group."})))
-
 (defn val-room-title [{ title :title }]
   (if (empty? title)
     (bad-request {:message "The title of the room can't be empty."})
     (if (rooms/exists? {:title title})
       (bad-request {:message "A room with that title already exists."})
       true)))
-
-(defn val-room-description [{ description :description }]
-  (if (empty? description)
-    (bad-request {:message "The description of the room can't be empty."})
-    true))
 
 (defn val-room-members [{ members :members }]
   (if (empty? members)
