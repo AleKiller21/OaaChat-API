@@ -18,7 +18,6 @@
 (defn add-users [{identity :identity members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
-                    (admin? (:username identity) room)
                     (users-exist? members))]
     (if (map? valid)
       valid
@@ -36,7 +35,6 @@
 (defn remove-users [{identity :identity members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
-                    (admin? (:username identity) room)
                     (users-exist? members)
                     (member-exists? room members))]
     (if (map? valid)
