@@ -14,7 +14,7 @@
 (defn create-room [data]
   (let [conn (mg/connect)
         db   (mg/get-db conn db-name)
-        room (merge data { :avatar "http://localhost:8000/default-group.png" :messages [] :admin (:admin data)})]
+        room (merge data {:messages [] :admin (:admin data)})]
     (mc/insert db coll (merge { :_id (ObjectId.) } room))
     room))
 

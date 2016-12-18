@@ -7,7 +7,6 @@
 
 (defn post-room [{identity :identity body :body}]
   (let [data (mand (val-room-title body)
-                   (val-room-description body)
                    (val-room-members body)
                    (val-room-visibility body))]
     (if (true? data)
