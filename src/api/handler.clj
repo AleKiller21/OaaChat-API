@@ -36,9 +36,9 @@
            (DELETE "/users" request (token-validation request request users/delete-user))
 
            (POST "/rooms" request (token-validation request request rooms/post-room))
-           (POST "/rooms/add-users" request (token-validation request {:identity (:identity request) :members (:members (:body request))
+           (POST "/rooms/add-users" request (token-validation request {:members (:members (:body request))
                                                                        :title (:title (:body request))} rooms/add-users))
-           (POST "/rooms/remove-users" request (token-validation request {:identity (:identity request) :members (:members (:body request))
+           (POST "/rooms/remove-users" request (token-validation request {:members (:members (:body request))
                                                                          :title (:title (:body request))} rooms/remove-users))
            (GET "/rooms" request (token-validation request request rooms/get-rooms))
            (GET "/rooms/:title" request (token-validation request (:title (:params request)) rooms/get-room))

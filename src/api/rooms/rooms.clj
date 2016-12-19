@@ -16,7 +16,7 @@
         (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))}))))
       data)))
 
-(defn add-users [{identity :identity members :members title :title}]
+(defn add-users [{members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
                     (users-exist? members))]
@@ -41,7 +41,7 @@
         (recur tail)
         "none"))))
 
-(defn remove-users [{identity :identity members :members title :title}]
+(defn remove-users [{members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
                     (users-exist? members)
@@ -119,18 +119,3 @@
           (updtae-room-title-users (:members room) (:title room) nil)
           (delete-room (:_id room))
           (success (str (:title room) " room has been deleted.")))))))
-
-;(defn remove-admin [title]
-;  (let [room (find-room {:title title})
-;        valid (room-exist? room)]
-;    (if (map? valid)
-;      valid
-;      (loop [[head & tail] (:members room)]
-;        (if (not= head (:admin room))
-;          (update-room (:_id room) (merge room {:admin head}))
-;          (if (not= nil tail)
-;            (recur tail)
-;            (do
-;              (updtae-room-title-users (:members room) title nil)
-;              (delete-room (:_id room))
-;              (success (str title " room has been deleted.")))))))))
