@@ -8,7 +8,7 @@
 
 (defn post-room [{identity :identity body :body}]
   (let [data (mand (val-room-title body)
-                   (val-room-members body)
+                   (val-room-members (merge body {:members (conj (:members body) (:username identity))}))
                    (val-room-visibility body))]
     (if (true? data)
       (do
