@@ -299,6 +299,48 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+            
+    put:
+      summary: Updates the specified room.
+      parameters:
+        - name: title
+          in: path
+          description: Name of the room to update.
+          required: true
+          type: string
+        - name: new-room
+          in: body
+          description: Model of the new room
+          required: true
+          schema:
+            $ref: '#/definitions/Room-put'
+      tags:
+        - Rooms
+      responses:
+        200:
+          description: Room updated.
+          schema:
+            $ref: '#/definitions/Room-post-response'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+            
+    delete:
+      summary: Deletes the specified room.
+      parameters:
+        - name: title
+          in: path
+          description: Name of the room to delete.
+          required: true
+          type: string
+      tags:
+        - Rooms
+      responses:
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
 
   /rooms/add-users:
     post:
@@ -575,6 +617,23 @@ definitions:
       visibility:
         type: string
         description: It can only be public or private.
+
+  Room-put:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Name of new room.
+      avatar:
+        type: string
+        description: Profile picture of the room.
+      admin:
+        type: string
+        description: Admin of the room.
+      visibility:
+        type: string
+        description: It can only be public or private.
+        
   Room-add-users:
     type: object
     properties:

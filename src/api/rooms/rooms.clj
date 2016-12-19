@@ -2,7 +2,8 @@
   (:require [api.users.db :as users]
             [monger.operators :as ops]
             [org.httpkit.server :refer :all]
-            [cheshire.core :refer :all]))
+            [cheshire.core :refer :all]
+            [api.users.db :refer [find-user update-user]]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
@@ -11,7 +12,7 @@
 
 (defn post-room [{identity :identity body :body}]
   (let [data (mand (val-room-title body)
-                   (val-room-members body)
+                   (val-room-members (merge body {:members (conj (:members body) (:username identity))}))
                    (val-room-visibility body))]
     (if (true? data)
       (do
@@ -36,6 +37,14 @@
                 (users/add-users-room title members)
                 (success (dissoc new-room :_id))))))))))
 
+(defn select-new-admin [current-members remove-members]
+  (loop [[head & tail] current-members]
+    (if (nil? (some (partial = head) remove-members))
+      head
+      (if (not= nil tail)
+        (recur tail)
+        "none"))))
+
 (defn remove-users [{members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
@@ -45,9 +54,13 @@
       valid
       (loop [[head & tail] members room room]
         (if (not= nil head)
-          (recur tail (merge room {:members (remove #{head} (:members room))}))
+          (if (= head (:admin room))
+            (recur tail (merge room {:members (remove #{head} (:members room)) :admin (select-new-admin (:members room) (conj tail head))}))
+            (recur tail (merge room {:members (remove #{head} (:members room))})))
           (do
-            (update-room (:_id room) room)
+            (if (= (:admin room) "none")
+              (delete-room (:_id room))
+              (update-room (:_id room) room))
             (users/remove-users-room title members)
             (success (dissoc room :_id))))))))
 
@@ -88,3 +101,48 @@
                 (connect! channel)
                 (on-close channel (partial disconnect! channel))
                 (on-receive channel #(notify-clients %))))
+
+(defn updtae-room-title-users [members old-title new-title]
+  (doseq [member members]
+    (let [user (find-user {:username member})
+          rooms (:rooms user)]
+      (if (nil? new-title)
+        (update-user (:_id user) (merge user {:rooms (remove #{old-title} rooms)}))
+        (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)}))))))
+
+(defn put-room [{identity :identity body :body title :title}]
+  (let [room (find-room {:title title})]
+    (if (nil? room)
+      (bad-request {:message (str title " room doesn't exist.")})
+      (let [valid (mand (admin? identity room)
+                        (val-room-visibility body)
+                        (users-exist? [(:admin body)])
+                        (member-exists? room [(:admin body)]))]
+        (if (map? valid)
+          valid
+          (do
+            (update-room (:_id room) (merge body {:messages (:messages room) :members (:members room)}))
+            (updtae-room-title-users (:members room) title (:title body))
+            (success (merge body {:messages (:messages room) :members (:members room)}))))))))
+
+(defn remove-room [{identity :identity title :title}]
+  (let [room (find-room {:title title})
+        valid (mand (room-exist? room)
+                    (admin? identity room))]
+    (if (map? valid)
+      valid
+      (do
+        (updtae-room-title-users (:members room) title nil)
+        (delete-room (:_id room))
+        (success (str title " room has been deleted."))))))
+
+(defn remove-admin [room]
+  (loop [[head & tail] (:members room)]
+    (if (not= head (:admin room))
+      (update-room (:_id room) (merge room {:admin head}))
+      (if (not= nil tail)
+        (recur tail)
+        (do
+          (updtae-room-title-users (:members room) (:title room) nil)
+          (delete-room (:_id room))
+          (success (str (:title room) " room has been deleted.")))))))

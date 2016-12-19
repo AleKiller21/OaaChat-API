@@ -64,16 +64,42 @@
           (success (dissoc (update-user (:_id user) (merge user new-vals)) :_id :password :hash))
           val-result)))))
 
+(defn remove-friend [{identity :identity body :username}]
+  (let [user_origin (find-user identity)
+        user_destiny (find-user body)]
+    (if (or (nil? user_destiny) (= (:active user_destiny) false))
+      (not-found {:message "The user you want to remove doesn't exist."})
+      (do
+        (if (nil? (some (partial = (:username user_destiny)) (:friends user_origin)))
+          (forbidden {:message (str (:username user_destiny) " is not in your friends list.")})
+          (let [sender (merge user_origin {:friends (remove #{(:username body)} (:friends user_origin))})
+                receiver (merge user_destiny {:friends (remove #{(:username user_origin)} (:friends user_destiny))})]
+            (update-user (:_id user_origin) sender)
+            (update-user (:_id user_destiny) receiver)
+            (success (dissoc sender :_id))))))))
+
+(defn remove-me-from-friends [user]
+  (doseq [friend (:friends user)]
+    (remove-friend {:identity {:username friend} :username {:username (:username user)}})))
+
+(defn remove-me-from-rooms [user]
+  (doseq [room (:rooms user)]
+    (rooms/remove-users {:members [(:username user)] :title room})))
+
 (defn delete-user [{body :body}]
   (let [email (:email body)
         password (:password body)
-        user (and (not= nil email) (not= nil password) (find-user body))]
+        user (and (not= nil email) (not= nil password) (find-user {:email email}))]
     (if (or (false? user) (nil? user))
-      (unauthorized {:message "You are not authorized to do that."})
-      (do
-        (when (true? (:active user))
-          (update-user (:_id user) (assoc user :active false)))
-        (success (dissoc (assoc user :active false) :_id :hash))))))
+      (bad-request {:message "There's no user with that email address."})
+      (if (not= true (hashers/check password (:password user)))
+        (unauthorized {:message "You are not authorized to do that."})
+        (do
+          (when (true? (:active user))
+            (remove-me-from-friends user)
+            (remove-me-from-rooms user)
+            (update-user (:_id user) (assoc user :active false)))
+          (success (dissoc (assoc user :active false) :_id :hash)))))))
 
 (defn activate-user [{body :body}]
   (let [hash (:hash body)
@@ -108,19 +134,6 @@
                                     :body (str (:username user_origin) " has added you to his friends.")})
             (success (dissoc sender :_id :hash :password :active))))))))
 
-(defn remove-friend [{identity :identity body :username}]
-  (let [user_origin (find-user identity)
-        user_destiny (find-user body)]
-    (if (or (nil? user_destiny) (= (:active user_destiny) false))
-      (not-found {:message "The user you want to remove doesn't exist."})
-      (do
-        (if (nil? (some (partial = (:username user_destiny)) (:friends user_origin)))
-          (forbidden {:message (str (:username user_destiny) " is not in your friends list.")})
-          (let [sender (merge user_origin {:friends (remove #{(:username body)} (:friends user_origin))})
-                receiver (merge user_destiny {:friends (remove #{(:username user_origin)} (:friends user_destiny))})]
-            (update-user (:_id user_origin) sender)
-            (update-user (:_id user_destiny) receiver)
-            (success (dissoc sender :_id))))))))
 
 (defn get-rooms [username]
   (let [user (find-user {:username username})]

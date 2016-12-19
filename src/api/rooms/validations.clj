@@ -19,6 +19,9 @@
         val
         (recur tail true)))))
 
+(defn admin? [username room]
+  (if (= username (:admin room)) true (forbidden {:message "You are not the admin of the group."})))
+
 (defn val-room-title [{ title :title }]
   (if (empty? title)
     (bad-request {:message "The title of the room can't be empty."})
@@ -31,7 +34,7 @@
     (bad-request {:message "The room must have at least one member."})
     (let [valid-member (users-exist? members)]
       (if (map? valid-member)
-        (bad-request valid-member)
+        valid-member
         true))))
 
 (defn val-room-visibility [{ visibility :visibility }]
