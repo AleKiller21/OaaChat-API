@@ -33,6 +33,14 @@
                 (users/add-users-room title members)
                 (success (dissoc new-room :_id))))))))))
 
+(defn select-new-admin [current-members remove-members]
+  (loop [[head & tail] current-members]
+    (if (nil? (some (partial = head) remove-members))
+      head
+      (if (not= nil tail)
+        (recur tail)
+        "none"))))
+
 (defn remove-users [{identity :identity members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
@@ -42,9 +50,13 @@
       valid
       (loop [[head & tail] members room room]
         (if (not= nil head)
-          (recur tail (merge room {:members (remove #{head} (:members room))}))
+          (if (= head (:admin room))
+            (recur tail (merge room {:members (remove #{head} (:members room)) :admin (select-new-admin (:members room) (conj tail head))}))
+            (recur tail (merge room {:members (remove #{head} (:members room))})))
           (do
-            (update-room (:_id room) room)
+            (if (= (:admin room) "none")
+              (delete-room (:_id room))
+              (update-room (:_id room) room))
             (users/remove-users-room title members)
             (success (dissoc room :_id))))))))
 
@@ -62,12 +74,6 @@
     (if (nil? room)
       (not-found {:message "Room not found."})
       (success (dissoc room :_id)))))
-
-;(defn updtae-room-title-users [members old-title new-title]
-;  (doseq [member members]
-;    (let [user (find-user {:username member})
-;          rooms (:rooms user)]
-;      (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)})))))
 
 (defn updtae-room-title-users [members old-title new-title]
   (doseq [member members]
@@ -102,3 +108,29 @@
         (updtae-room-title-users (:members room) title nil)
         (delete-room (:_id room))
         (success (str title " room has been deleted."))))))
+
+(defn remove-admin [room]
+  (loop [[head & tail] (:members room)]
+    (if (not= head (:admin room))
+      (update-room (:_id room) (merge room {:admin head}))
+      (if (not= nil tail)
+        (recur tail)
+        (do
+          (updtae-room-title-users (:members room) (:title room) nil)
+          (delete-room (:_id room))
+          (success (str (:title room) " room has been deleted.")))))))
+
+;(defn remove-admin [title]
+;  (let [room (find-room {:title title})
+;        valid (room-exist? room)]
+;    (if (map? valid)
+;      valid
+;      (loop [[head & tail] (:members room)]
+;        (if (not= head (:admin room))
+;          (update-room (:_id room) (merge room {:admin head}))
+;          (if (not= nil tail)
+;            (recur tail)
+;            (do
+;              (updtae-room-title-users (:members room) title nil)
+;              (delete-room (:_id room))
+;              (success (str title " room has been deleted.")))))))))
