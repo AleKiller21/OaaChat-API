@@ -1,7 +1,8 @@
 (ns api.rooms.rooms
   (:require [api.users.db :as users]
             [monger.operators :as ops]
-            [org.httpkit.server :refer :all]))
+            [org.httpkit.server :refer :all]
+            [cheshire.core :refer :all]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
@@ -74,8 +75,10 @@
   (swap! channels #(remove #{channel} %)))
 
 (defn notify-clients [message]
-  (let [room (find-room {:title (:room message)})
-        msg-model (:message message)]
+  (let [parse-message (parse-string message true)
+        room (find-room {:title (:room parse-message)})
+        msg-model (:message parse-message)]
+    (println parse-message)
     (update-room (:_id room) (merge room {:messages (conj (:messages room) msg-model)}))
     (doseq [channel @channels]
       (send! channel message))))
@@ -85,6 +88,3 @@
                 (connect! channel)
                 (on-close channel (partial disconnect! channel))
                 (on-receive channel #(notify-clients %))))
-
-;(defn put-room [{title :title body :body}]
-;  )
