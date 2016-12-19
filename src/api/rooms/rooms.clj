@@ -1,9 +1,12 @@
 (ns api.rooms.rooms
   (:require [api.users.db :as users]
-            [monger.operators :as ops]))
+            [monger.operators :as ops]
+            [org.httpkit.server :refer :all]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
+
+(defonce channels (atom #{}))
 
 (defn post-room [{identity :identity body :body}]
   (let [data (mand (val-room-title body)
@@ -15,7 +18,7 @@
         (success (create-room (merge body {:admin (:username identity)} {:members  (conj (:members body) (:username identity))}))))
       data)))
 
-(defn add-users [{identity :identity members :members title :title}]
+(defn add-users [{members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
                     (users-exist? members))]
@@ -32,7 +35,7 @@
                 (users/add-users-room title members)
                 (success (dissoc new-room :_id))))))))))
 
-(defn remove-users [{identity :identity members :members title :title}]
+(defn remove-users [{members :members title :title}]
   (let [room (find-room {:title title})
         valid (mand (room-exist? room)
                     (users-exist? members)
@@ -61,6 +64,27 @@
     (if (nil? room)
       (not-found {:message "Room not found."})
       (success (dissoc room :_id)))))
+
+(defn connect! [channel]
+  (println "channel open")
+  (swap! channels conj channel))
+
+(defn disconnect! [channel status]
+  (println "channel closed:" status)
+  (swap! channels #(remove #{channel} %)))
+
+(defn notify-clients [message]
+  (let [room (find-room {:title (:room message)})
+        msg-model (:message message)]
+    (update-room (:_id room) (merge room {:messages (conj (:messages room) msg-model)}))
+    (doseq [channel @channels]
+      (send! channel message))))
+
+(defn ws-handler [request]
+  (with-channel request channel
+                (connect! channel)
+                (on-close channel (partial disconnect! channel))
+                (on-receive channel #(notify-clients %))))
 
 ;(defn put-room [{title :title body :body}]
 ;  )
