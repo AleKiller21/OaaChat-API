@@ -63,11 +63,19 @@
       (not-found {:message "Room not found."})
       (success (dissoc room :_id)))))
 
+;(defn updtae-room-title-users [members old-title new-title]
+;  (doseq [member members]
+;    (let [user (find-user {:username member})
+;          rooms (:rooms user)]
+;      (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)})))))
+
 (defn updtae-room-title-users [members old-title new-title]
   (doseq [member members]
     (let [user (find-user {:username member})
           rooms (:rooms user)]
-      (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)})))))
+      (if (nil? new-title)
+        (update-user (:_id user) (merge user {:rooms (remove #{old-title} rooms)}))
+        (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)}))))))
 
 (defn put-room [{identity :identity body :body title :title}]
   (let [room (find-room {:title title})]
@@ -83,3 +91,14 @@
             (update-room (:_id room) (merge body {:messages (:messages room) :members (:members room)}))
             (updtae-room-title-users (:members room) title (:title body))
             (success (merge body {:messages (:messages room) :members (:members room)}))))))))
+
+(defn remove-room [{identity :identity title :title}]
+  (let [room (find-room {:title title})
+        valid (mand (room-exist? room)
+                    (admin? identity room))]
+    (if (map? valid)
+      valid
+      (do
+        (updtae-room-title-users (:members room) title nil)
+        (delete-room (:_id room))
+        (success (str title " room has been deleted."))))))

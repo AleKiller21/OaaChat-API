@@ -37,5 +37,10 @@
         db (mg/get-db conn db-name)]
     (mc/update-by-id db coll id new-room)))
 
+(defn delete-room [id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn db-name)]
+    (mc/remove-by-id db coll id)))
+
 (defn exists? [query] (not (empty? (find-rooms query))))
 
