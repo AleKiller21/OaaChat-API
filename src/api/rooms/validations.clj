@@ -29,17 +29,12 @@
       (bad-request {:message "A room with that title already exists."})
       true)))
 
-(defn val-room-description [{ description :description }]
-  (if (empty? description)
-    (bad-request {:message "The description of the room can't be empty."})
-    true))
-
 (defn val-room-members [{ members :members }]
   (if (empty? members)
     (bad-request {:message "The room must have at least one member."})
     (let [valid-member (users-exist? members)]
       (if (map? valid-member)
-        (bad-request valid-member)
+        valid-member
         true))))
 
 (defn val-room-visibility [{ visibility :visibility }]

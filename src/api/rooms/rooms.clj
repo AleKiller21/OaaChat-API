@@ -1,6 +1,7 @@
 (ns api.rooms.rooms
   (:require [api.users.db :as users]
-            [monger.operators :as ops]))
+            [monger.operators :as ops]
+            [api.users.db :refer [find-user update-user]]))
 (use 'api.utils)
 (use 'api.rooms.db)
 (use 'api.rooms.validations)
@@ -62,5 +63,23 @@
       (not-found {:message "Room not found."})
       (success (dissoc room :_id)))))
 
-;(defn put-room [{title :title body :body}]
-;  )
+(defn updtae-room-title-users [members old-title new-title]
+  (doseq [member members]
+    (let [user (find-user {:username member})
+          rooms (:rooms user)]
+      (update-user (:_id user) (merge user {:rooms (conj (remove #{old-title} rooms) new-title)})))))
+
+(defn put-room [{identity :identity body :body title :title}]
+  (let [room (find-room {:title title})]
+    (if (nil? room)
+      (bad-request {:message (str title " room doesn't exist.")})
+      (let [valid (mand (admin? identity room)
+                        (val-room-visibility body)
+                        (users-exist? [(:admin body)])
+                        (member-exists? room [(:admin body)]))]
+        (if (map? valid)
+          valid
+          (do
+            (update-room (:_id room) (merge body {:messages (:messages room) :members (:members room)}))
+            (updtae-room-title-users (:members room) title (:title body))
+            (success (merge body {:messages (:messages room) :members (:members room)}))))))))

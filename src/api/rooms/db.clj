@@ -38,3 +38,4 @@
     (mc/update-by-id db coll id new-room)))
 
 (defn exists? [query] (not (empty? (find-rooms query))))
+
